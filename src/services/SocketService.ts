@@ -127,11 +127,11 @@ export class SocketService {
   private setupEventHandlers(): void {
     if (!this.socket) return;
 
-    // Debug: Log all incoming events
-    const originalEmit = this.socket.emit;
-    this.socket.onAny((eventName: string, ...args: any[]) => {
-      console.log(`Received SocketIO event: ${eventName}`, args.length > 0 ? args[0] : 'no data');
-    });
+    // Debug: Log all incoming events - COMMENTED OUT to reduce console spam
+    // const originalEmit = this.socket.emit;
+    // this.socket.onAny((eventName: string, ...args: any[]) => {
+    //   console.log(`Received SocketIO event: ${eventName}`, args.length > 0 ? args[0] : 'no data');
+    // });
 
     // Handle chip data updates (vital signs)
     this.socket.on('add_chip', (data: ChipData) => this.handleChipUpdate(data));
@@ -140,20 +140,9 @@ export class SocketService {
     // Handle camera feed updates - convert raw bytes to base64
     this.socket.on('update_feed', (data: any) => {
       try {
-        console.log('Received update_feed data:', {
-          type: typeof data,
-          constructor: data?.constructor?.name,
-          isArrayBuffer: data instanceof ArrayBuffer,
-          isUint8Array: data instanceof Uint8Array,
-          isBuffer: Buffer.isBuffer(data),
-          length: data?.length || data?.byteLength,
-          firstBytes: data instanceof ArrayBuffer 
-            ? Array.from(new Uint8Array(data.slice(0, 10)))
-            : data instanceof Uint8Array
-            ? Array.from(data.slice(0, 10))
-            : 'not binary'
-        });
-
+        // Removed detailed logging to reduce console spam
+        // Only log errors or important events
+        
         let base64String: string;
         
         if (data instanceof ArrayBuffer) {
@@ -169,7 +158,7 @@ export class SocketService {
           return;
         }
         
-        console.log('Converted to base64, length:', base64String.length);
+        // Removed base64 length logging to reduce console spam
         this.onRGBImageUpdate?.(base64String);
       } catch (error) {
         console.error('Error processing RGB image data:', error);
