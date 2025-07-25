@@ -12,6 +12,8 @@ import { VitalSigns, PatientInfo, VitalSignHistory } from '../types';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
+const isTablet = screenWidth > 768;
+const isLandscape = screenWidth > screenHeight;
 
 interface HealthDiagnosticsScreenProps {
   vitalSigns: VitalSigns;
@@ -112,7 +114,7 @@ export const HealthDiagnosticsScreen: React.FC<HealthDiagnosticsScreenProps> = (
           <Image
             source={{ uri: `data:image/jpeg;base64,${rgbImageData}` }}
             style={styles.cameraImage}
-            resizeMode="cover"
+            resizeMode="contain"
           />
         ) : (
           <View style={styles.noCameraFeed}>
@@ -145,8 +147,11 @@ export const HealthDiagnosticsScreen: React.FC<HealthDiagnosticsScreenProps> = (
         
         {/* Signum Technologies Logo */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>SIGNUM</Text>
-          <Text style={styles.logoSubtext}>TECHNOLOGIES</Text>
+          <Image
+            source={require('../../assets/Signum_logo_print.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
       </View>
     );
@@ -158,45 +163,47 @@ export const HealthDiagnosticsScreen: React.FC<HealthDiagnosticsScreenProps> = (
         <Text style={styles.title}>Health Diagnostics</Text>
       </View>
       
-      <View style={styles.mainContent}>
-        {/* Camera Feed Area */}
-        <View style={styles.leftPanel}>
-          {renderCameraFeed()}
-        </View>
-        
-        {/* Vital Signs Charts */}
-        <View style={styles.rightPanel}>
-          {renderVitalChart(
-            'Heart Rate',
-            vitalSigns.heartrate,
-            heartRateHistory,
-            '#00FF00',
-            'heart',
-            180,
-            'BPM'
-          )}
+      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.mainContent}>
+          {/* Camera Feed Area */}
+          <View style={styles.cameraSection}>
+            {renderCameraFeed()}
+          </View>
           
-          {renderVitalChart(
-            'Respiratory Rate',
-            vitalSigns.resprate,
-            respRateHistory,
-            '#FFFF00',
-            'fitness',
-            40,
-            'RPM'
-          )}
-          
-          {renderVitalChart(
-            'Temperature',
-            vitalSigns.temp,
-            tempHistory,
-            '#00FFFF',
-            'thermometer',
-            120,
-            '°F'
-          )}
+          {/* Vital Signs Charts */}
+          <View style={styles.vitalsSection}>
+            {renderVitalChart(
+              'Heart Rate',
+              vitalSigns.heartrate,
+              heartRateHistory,
+              '#00FF00',
+              'heart',
+              180,
+              'BPM'
+            )}
+            
+            {renderVitalChart(
+              'Respiratory Rate',
+              vitalSigns.resprate,
+              respRateHistory,
+              '#FFFF00',
+              'fitness',
+              40,
+              'RPM'
+            )}
+            
+            {renderVitalChart(
+              'Temperature',
+              vitalSigns.temp,
+              tempHistory,
+              '#00FFFF',
+              'thermometer',
+              120,
+              '°F'
+            )}
+          </View>
         </View>
-      </View>
+      </ScrollView>
       
       {/* Patient Information */}
       {renderPatientInfo()}
@@ -221,24 +228,32 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
+  scrollContainer: {
+    flex: 1,
+  },
   mainContent: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: isTablet && isLandscape ? 'row' : 'column',
     padding: 20,
   },
-  leftPanel: {
-    flex: 1,
-    marginRight: 20,
+  cameraSection: {
+    flex: isTablet && isLandscape ? 1.2 : 0,
+    marginRight: isTablet && isLandscape ? 20 : 0,
+    marginBottom: isTablet && isLandscape ? 0 : 20,
   },
-  rightPanel: {
-    flex: 1,
-    justifyContent: 'space-around',
+  vitalsSection: {
+    flex: isTablet && isLandscape ? 1 : 0,
+    flexDirection: isTablet ? 'row' : 'column',
+    flexWrap: isTablet ? 'wrap' : 'nowrap',
+    justifyContent: 'space-between',
   },
   cameraContainer: {
-    flex: 1,
     backgroundColor: '#111111',
-    borderRadius: 8,
+    borderRadius: 12,
     overflow: 'hidden',
+    aspectRatio: 16/9, // Standard camera aspect ratio
+    minHeight: isTablet ? 300 : 200,
+    maxHeight: isTablet ? 400 : 250,
   },
   cameraImage: {
     width: '100%',
@@ -257,6 +272,9 @@ const styles = StyleSheet.create({
   vitalContainer: {
     height: 180,
     marginBottom: 20,
+    flex: isTablet && isLandscape ? 1 : 0,
+    marginHorizontal: isTablet && isLandscape ? 5 : 0,
+    minWidth: isTablet && isLandscape ? 280 : '100%',
   },
   vitalHeader: {
     flexDirection: 'row',
@@ -341,16 +359,12 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'flex-end',
+    justifyContent: 'center',
   },
-  logoText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    letterSpacing: 2,
-  },
-  logoSubtext: {
-    fontSize: 12,
-    color: '#007AFF',
-    letterSpacing: 1,
+  logoImage: {
+    width: 120,
+    height: 60,
+    maxWidth: 150,
+    maxHeight: 80,
   },
 }); 
